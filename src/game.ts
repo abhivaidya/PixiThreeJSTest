@@ -13,18 +13,24 @@ class Game
     private renderer3D:THREE.WebGLRenderer;
     private camera:THREE.PerspectiveCamera;
     private scene:THREE.Scene;
-    private mesh:THREE.Mesh;
     private loadingManager:THREE.LoadingManager;
-    private textureLoader:THREE.TextureLoader;
     private controls:THREE.OrbitControls;
     private playerModel:THREE.Scene;
+    private playerTexture:THREE.Texture;
+    private playerActions = [];
+    private player:Player;
     private mixer:THREE.AnimationMixer;
-    private actions;
+    private clock:THREE.Clock;
+    private enemies:Enemy[] = [];
+    public static enemyModels = [];
+    private raycaster = new THREE.Raycaster();
+    private mouse:THREE.Vector2 = new THREE.Vector2();
+    private intersectPoint = new THREE.Vector3();
+    private ground:THREE.Plane;
 
     //Pixi props
     private renderer2D;
     private pixicontainer;
-
 
     constructor()
     {
@@ -48,11 +54,6 @@ class Game
 
         this.initialiseThreeProps();
         this.initialisePixiProps();
-
-        this.renderer3D.setAnimationLoop( () => {
-            this.update();
-            this.render();
-        });
     }
 
     private initialiseThreeProps()
@@ -66,19 +67,7 @@ class Game
         let far = 100;
 
         this.camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
-        this.camera.position.set( -4, 10, 15 );
-
-        //let geometry = new THREE.BoxBufferGeometry( 2, 2, 2 );
-        // let geometry = new THREE.OctahedronBufferGeometry(2, 2);
-
-        // let material = new THREE.MeshBasicMaterial({ color: 0x800080 });
-        // let material = new THREE.MeshStandardMaterial({ color: 0x800080 });
-        // material.flatShading = true;
-
-        // this.mesh = new THREE.Mesh( geometry, material );
-        // this.scene.add( this.mesh );
-
-        this.textureLoader = new THREE.TextureLoader();
+        this.camera.position.set( -4, 5, 10 );
 
         let directionallight = new THREE.DirectionalLight( 0xffffff, 1.5 );
         directionallight.position.set(0, 3, 3);
@@ -87,9 +76,11 @@ class Game
         let ambientlight = new THREE.AmbientLight( 0xffffff, 1 );
         this.scene.add(ambientlight);
 
-        let ground = new THREE.Mesh( new THREE.PlaneBufferGeometry( 20, 20 ), new THREE.MeshPhongMaterial( { color: 0x2C3539, depthWrite: false } ) );
-        ground.rotation.x = - Math.PI / 2;
-        this.scene.add( ground );
+        this.ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+
+        let floor = new THREE.Mesh( new THREE.PlaneBufferGeometry( 20, 20 ), new THREE.MeshPhongMaterial( { color: 0x2C3539, depthWrite: false } ) );
+        floor.rotation.x = - Math.PI / 2;
+        this.scene.add( floor );
 
         let grid = new THREE.GridHelper( 200, 40, 0x2C3539, 0x000000 );
         (grid.material as THREE.MeshStandardMaterial).opacity = 0.2;
@@ -100,25 +91,97 @@ class Game
             this.initGame();
         });
 
+        this.loadEnvironment();
+        this.loadEnemyModels();
+        this.loadPlayerModel();
+
+        this.controls = new THREE.OrbitControls( this.camera, this.divContainer );
+
+        this.clock = new THREE.Clock();
+    }
+
+    private loadPlayerModel()
+    {
+        let loader = new THREE.GLTFLoader(this.loadingManager);
+
+        const onLoad = ( gltf:THREE.GLTF, position, name:string ) => {
+        
+            this.playerModel = gltf.scene;
+
+            let playerScale:number = 0.06;
+            this.playerModel.scale.set(playerScale, playerScale, playerScale);
+        };
+        
+        const onProgress = () => {};
+        
+        const onError = ( errorMessage ) => { console.log( errorMessage ); };
+        
+        loader.load( 'assets/characters/advancedCharacter.gltf', gltf => onLoad( gltf, new THREE.Vector3(), 'player' ), onProgress, onError );
+
+        let textureLoader = new THREE.TextureLoader(this.loadingManager);
+        textureLoader.load('assets/characters/skin_adventurer.png', (texture) => {
+            this.playerTexture = texture;
+        });
+    }
+
+    private loadEnemyModels()
+    {
+        let loader = new THREE.GLTFLoader(this.loadingManager);
+
+        const onLoad = ( gltf, position, name:string ) => {
+        
+            // const model = gltf.scene.children[ 0 ];
+            // model.position.copy( position );
+            // model.children[1].rotateX(-Math.PI / 2);
+            // model.children[2].rotateX(-Math.PI / 2);  
+        
+            // const animation = gltf.animations[ 0 ];
+        
+            // const mixer = new THREE.AnimationMixer( model );
+            // mixers.push( mixer );
+        
+            // const action = mixer.clipAction( animation );
+            // action.play();
+        
+            // this.scene.add( model );
+
+            if (name == "zombie")
+                Game.enemyModels[0] = gltf;
+            else if (name == "skeleton")
+                Game.enemyModels[1] = gltf;
+            else if (name == "ghost")
+                Game.enemyModels[2] = gltf;
+        };
+        
+        const onProgress = () => {};
+        
+        const onError = ( errorMessage ) => { console.log( errorMessage ); };
+        
+        let zombiePosition = new THREE.Vector3( 0, 0, 1 );
+        loader.load( 'assets/characters/character_zombie.glb', gltf => onLoad( gltf, zombiePosition, 'zombie' ), onProgress, onError );
+        
+        let skeletonPosition = new THREE.Vector3( 1, 0, -2 );
+        loader.load( 'assets/characters/character_skeleton.glb', gltf => onLoad( gltf, skeletonPosition, 'skeleton' ), onProgress, onError );
+        
+        let ghostPosition = new THREE.Vector3( 0, 0, 0 );
+        loader.load( 'assets/characters/character_ghost.glb', gltf => onLoad( gltf, ghostPosition, 'ghost' ), onProgress, onError );          
+    }
+
+    private loadEnvironment()
+    {
         let enviModelNames = ['altarStone', 'altarWood', 'bench', 'benchBroken', 'borderPillar', 'coffin', 'coffinOld', 'columnLarge', 'cross', 'crypt', 'debris', 'debrisWood', 'detailBowl', 'detailChalice', 'detailPlate', 'fence', 'fenceBroken', 'fenceIron', 'fenceIronBorder', 'fenceIronBorderPillar', 'fenceIronGate', 'fenceIronOpening', 'fenceStone', 'fenceStoneStraight', 'fireBasket', 'grave', 'gravestoneBevel', 'gravestoneBroken', 'gravestoneCross', 'gravestoneCrossLarge', 'gravestoneDebris', 'gravestoneDecorative', 'gravestoneFlat', 'gravestoneFlatOpen', 'gravestoneRoof', 'gravestoneRound', 'gravestoneWide', 'lanternCandle', 'lanternDouble', 'lanternGlass', 'lanternSingle', 'pillarObelisk', 'pillarSquare', 'pumpkin', 'pumpkinCarved', 'pumpkinCarvedTall', 'pumpkinTall', 'shovel', 'shovelDirt', 'trunk', 'trunkLong', 'urn'];
 
         let positionRange:number = 20;
+        let loader = new THREE.GLTFLoader(this.loadingManager);
 
         for(let i= 0; i < enviModelNames.length; i++)
-        {
-            let loader = new THREE.GLTFLoader(this.loadingManager);
+        {            
             loader.load( 'assets/environment/' + enviModelNames[i] + '.glb', ( gltf:THREE.GLTF ) => {
                 this[enviModelNames[i]] = gltf.scene;
-                // this.scene.add( this[enviModelNames[i]] );
-
-
-                // this[enviModelNames[i]].position.set(Math.round(Math.random() * positionRange) - positionRange / 2, 0, Math.round(Math.random() * positionRange) - positionRange / 2);
             }, undefined, function( e ) {
                 console.error( e );
             } );
         }
-
-        this.controls = new THREE.OrbitControls( this.camera, this.divContainer );
     }
 
     private initialisePixiProps()
@@ -139,6 +202,15 @@ class Game
         // this.mesh.rotation.x += 0.01;
         // this.mesh.rotation.y += 0.01;
         // this.mesh.rotation.z += 0.01;
+
+        const delta = this.clock.getDelta();
+
+        if(this.mixer)
+            this.mixer.update( delta );
+        
+        this.enemies.forEach(enemy => {
+            enemy.update();
+        });
     }
 
     private render()
@@ -162,7 +234,42 @@ class Game
 
     private initGame()
     {
-        this.scene.add(this['lanternDouble'].clone());
+        // this.scene.add(this['lanternDouble'].clone());
+
+        // ((this.playerModel.children[1] as THREE.SkinnedMesh).material as THREE.MeshStandardMaterial).map = this.playerTexture;
+
+        // this.playerActions['Idle'].play();
+
+        let zombie = new Zombie(this.scene);
+        this.enemies.push(zombie);
+        zombie.setPosition(new THREE.Vector3(0.25, 0, 0.5));
+
+        let ghost = new Ghost(this.scene);
+        this.enemies.push(ghost);
+        ghost.setPosition(new THREE.Vector3(-0.25, 0, -0.5));
+
+        let skeleton = new Skeleton(this.scene);
+        this.enemies.push(skeleton);
+        skeleton.setPosition(new THREE.Vector3(-0.25, 0, -0.75));
+
+        this.player = new Player(this.scene, this.playerModel, this.playerTexture);
+
+        this.renderer3D.setAnimationLoop( () => {
+            this.update();
+            this.render();
+        });
+
+        window.addEventListener("mousemove", this.onMouseMove.bind(this), false);
+    }
+
+    private onMouseMove(event) 
+    {
+        this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+        this.raycaster.ray.intersectPlane(this.ground, this.intersectPoint);
+        this.player.lookAt(this.intersectPoint);
     }
 }
 
