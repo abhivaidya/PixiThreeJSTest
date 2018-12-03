@@ -20,6 +20,9 @@ class Enemy
 
 class Zombie extends Enemy
 {
+    private leftArmAngle:number = 0;
+    private rightArmAngle:number = 0;
+
     constructor(scene:THREE.Scene)
     {
         super();
@@ -33,7 +36,11 @@ class Zombie extends Enemy
 
     public update()
     {
-        
+        this.leftArmAngle += Math.random() * 0.04;
+        this.rightArmAngle += Math.random() * 0.04;
+
+        this.charModel.children[1].rotateX(Math.sin(this.leftArmAngle) * 0.00625);
+        this.charModel.children[2].rotateX(Math.sin(this.rightArmAngle) * 0.00625);
     }
 }
 

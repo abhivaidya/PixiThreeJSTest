@@ -25,6 +25,8 @@ var Zombie = /** @class */ (function (_super) {
     __extends(Zombie, _super);
     function Zombie(scene) {
         var _this = _super.call(this) || this;
+        _this.leftArmAngle = 0;
+        _this.rightArmAngle = 0;
         _this.charModel = Game.enemyModels[0].scene.children[0].clone();
         scene.add(_this.charModel);
         _this.charModel.children[1].rotateX(-Math.PI / 2);
@@ -32,6 +34,10 @@ var Zombie = /** @class */ (function (_super) {
         return _this;
     }
     Zombie.prototype.update = function () {
+        this.leftArmAngle += Math.random() * 0.04;
+        this.rightArmAngle += Math.random() * 0.04;
+        this.charModel.children[1].rotateX(Math.sin(this.leftArmAngle) * 0.00625);
+        this.charModel.children[2].rotateX(Math.sin(this.rightArmAngle) * 0.00625);
     };
     return Zombie;
 }(Enemy));
