@@ -234,6 +234,20 @@ class Game
 
     private initGame()
     {
+        for(let i = 0; i < 10; i++)
+        {
+            let fence = this['fenceIron'].clone();
+            this.scene.add(fence);
+            fence.position.set(i * 1 - 5, 0, -5);
+        }
+
+        for(let i = 0; i < 10; i++)
+        {
+            let fence = this['fenceIron'].clone();
+            this.scene.add(fence);
+            fence.position.set(i * 1 - 5, 0, 5);
+        }
+
         // this.scene.add(this['lanternDouble'].clone());
 
         // ((this.playerModel.children[1] as THREE.SkinnedMesh).material as THREE.MeshStandardMaterial).map = this.playerTexture;
@@ -259,7 +273,39 @@ class Game
             this.render();
         });
 
-        window.addEventListener("mousemove", this.onMouseMove.bind(this), false);
+        document.addEventListener('mousemove', this.onMouseMove.bind(this), false);
+        document.addEventListener('keydown', this.onDocumentKeyDown.bind(this), false);
+        document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
+    }
+
+    private onDocumentKeyDown(event)
+    {
+        this.player.move(event.keyCode);
+
+        // switch( event.keyCode ) 
+        // {
+        //     case 87:
+        //         console.log('w');
+        //         break;
+        //     case 65:
+        //         console.log('a');
+        //         break;
+        //     case 83:
+        //         console.log('s');
+        //         break;
+        //     case 68:
+        //         console.log('d');
+        //         break;
+        // }
+    }
+
+    private onDocumentKeyUp(event)
+    {
+        switch( event.keyCode ) 
+        {
+            case 16:
+                break;
+        }
     }
 
     private onMouseMove(event) 
