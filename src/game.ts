@@ -199,10 +199,6 @@ class Game
 
     private update() 
     {
-        // this.mesh.rotation.x += 0.01;
-        // this.mesh.rotation.y += 0.01;
-        // this.mesh.rotation.z += 0.01;
-
         const delta = this.clock.getDelta();
 
         if(this.mixer)
@@ -283,6 +279,7 @@ class Game
     private onDocumentKeyDown(event)
     {
         this.player.startMoving(event.keyCode);
+        // this.camera.position.setFromMatrixPosition()
     }
 
     private onDocumentKeyUp(event)

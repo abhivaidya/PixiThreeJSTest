@@ -5,7 +5,7 @@ var Player = /** @class */ (function () {
         this.speed = 2;
         this.clock = new THREE.Clock();
         this.charModel = playerModel;
-        console.log(playerModel);
+        // console.log(playerModel);
         playerTexture.flipY = false;
         playerModel.children[0].material.map = playerTexture;
         scene.add(this.charModel);
@@ -13,7 +13,7 @@ var Player = /** @class */ (function () {
         // this.charModel.children[3].rotateX(-Math.PI / 2);
     }
     Player.prototype.lookAt = function (intersectPoint) {
-        this.charModel.lookAt(intersectPoint);
+        // this.charModel.lookAt(intersectPoint);
     };
     Player.prototype.startMoving = function (eventKeyCode) {
         switch (eventKeyCode) {
@@ -24,10 +24,10 @@ var Player = /** @class */ (function () {
                 this.walkSpeed = -this.speed;
                 break;
             case 65:
-                this.turnSpeed = -this.speed;
+                this.turnSpeed = this.speed;
                 break;
             case 68:
-                this.turnSpeed = this.speed;
+                this.turnSpeed = -this.speed;
                 break;
         }
     };

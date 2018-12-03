@@ -1,6 +1,6 @@
 class Player
 {
-    private charModel:THREE.Scene;
+    public charModel:THREE.Scene;
     private walkSpeed:number = 0;
     private turnSpeed:number = 0;
 
@@ -12,7 +12,7 @@ class Player
     {
         this.charModel = playerModel;
 
-        console.log(playerModel);
+        // console.log(playerModel);
 
         playerTexture.flipY = false;
         ((playerModel.children[0] as THREE.Mesh).material as THREE.MeshStandardMaterial).map = playerTexture;
@@ -24,7 +24,7 @@ class Player
 
     public lookAt(intersectPoint:THREE.Vector3)
     {
-        this.charModel.lookAt(intersectPoint);
+        // this.charModel.lookAt(intersectPoint);
     }
 
     public startMoving(eventKeyCode:number)
@@ -38,10 +38,10 @@ class Player
                 this.walkSpeed = -this.speed;
                 break;
             case 65:
-                this.turnSpeed = -this.speed;
+                this.turnSpeed = this.speed;
                 break;
             case 68:
-                this.turnSpeed = this.speed;
+                this.turnSpeed = -this.speed;
                 break;
         }
     }

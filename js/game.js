@@ -131,9 +131,6 @@ var Game = /** @class */ (function () {
         this.pixicontainer.addChild(bunny);
     };
     Game.prototype.update = function () {
-        // this.mesh.rotation.x += 0.01;
-        // this.mesh.rotation.y += 0.01;
-        // this.mesh.rotation.z += 0.01;
         var delta = this.clock.getDelta();
         if (this.mixer)
             this.mixer.update(delta);
@@ -190,6 +187,7 @@ var Game = /** @class */ (function () {
     };
     Game.prototype.onDocumentKeyDown = function (event) {
         this.player.startMoving(event.keyCode);
+        // this.camera.position.setFromMatrixPosition()
     };
     Game.prototype.onDocumentKeyUp = function (event) {
         this.player.stopMoving(event.keyCode);
