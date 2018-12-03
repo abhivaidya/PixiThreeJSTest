@@ -211,6 +211,8 @@ class Game
         this.enemies.forEach(enemy => {
             enemy.update();
         });
+
+        this.player.update();
     }
 
     private render()
@@ -280,32 +282,12 @@ class Game
 
     private onDocumentKeyDown(event)
     {
-        this.player.move(event.keyCode);
-
-        // switch( event.keyCode ) 
-        // {
-        //     case 87:
-        //         console.log('w');
-        //         break;
-        //     case 65:
-        //         console.log('a');
-        //         break;
-        //     case 83:
-        //         console.log('s');
-        //         break;
-        //     case 68:
-        //         console.log('d');
-        //         break;
-        // }
+        this.player.startMoving(event.keyCode);
     }
 
     private onDocumentKeyUp(event)
     {
-        switch( event.keyCode ) 
-        {
-            case 16:
-                break;
-        }
+        this.player.stopMoving(event.keyCode);
     }
 
     private onMouseMove(event) 

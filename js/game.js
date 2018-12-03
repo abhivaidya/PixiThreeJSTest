@@ -140,6 +140,7 @@ var Game = /** @class */ (function () {
         this.enemies.forEach(function (enemy) {
             enemy.update();
         });
+        this.player.update();
     };
     Game.prototype.render = function () {
         this.renderer2D.reset();
@@ -188,28 +189,10 @@ var Game = /** @class */ (function () {
         document.addEventListener('keyup', this.onDocumentKeyUp.bind(this), false);
     };
     Game.prototype.onDocumentKeyDown = function (event) {
-        this.player.move(event.keyCode);
-        // switch( event.keyCode ) 
-        // {
-        //     case 87:
-        //         console.log('w');
-        //         break;
-        //     case 65:
-        //         console.log('a');
-        //         break;
-        //     case 83:
-        //         console.log('s');
-        //         break;
-        //     case 68:
-        //         console.log('d');
-        //         break;
-        // }
+        this.player.startMoving(event.keyCode);
     };
     Game.prototype.onDocumentKeyUp = function (event) {
-        switch (event.keyCode) {
-            case 16:
-                break;
-        }
+        this.player.stopMoving(event.keyCode);
     };
     Game.prototype.onMouseMove = function (event) {
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;

@@ -1,6 +1,12 @@
 class Player
 {
     private charModel:THREE.Scene;
+    private walkSpeed:number = 0;
+    private turnSpeed:number = 0;
+
+    private speed:number = 2;
+
+    private clock = new THREE.Clock();
     
     constructor(scene:THREE.Scene, playerModel:THREE.Scene, playerTexture:THREE.Texture)
     {
@@ -21,27 +27,49 @@ class Player
         this.charModel.lookAt(intersectPoint);
     }
 
-    public move(eventKeyCode:number)
+    public startMoving(eventKeyCode:number)
     {
         switch( eventKeyCode ) 
         {
             case 87:
-                this.charModel.position.setZ(this.charModel.position.z + 0.05);
-                break;
-            case 65:
-                console.log('a');
+                this.walkSpeed = this.speed;
                 break;
             case 83:
-                console.log('s');
+                this.walkSpeed = -this.speed;
+                break;
+            case 65:
+                this.turnSpeed = -this.speed;
                 break;
             case 68:
-                console.log('d');
+                this.turnSpeed = this.speed;
+                break;
+        }
+    }
+
+    public stopMoving(eventKeyCode:number)
+    {
+        switch( eventKeyCode ) 
+        {
+            case 87:
+                this.walkSpeed = 0;
+                break;
+            case 83:
+                this.walkSpeed = 0;
+                break;
+            case 65:
+                this.turnSpeed = 0;
+                break;
+            case 68:
+                this.turnSpeed = 0;
                 break;
         }
     }
 
     public update()
     {
+        let delta = this.clock.getDelta();
 
+        this.charModel.translateZ(this.walkSpeed * delta);
+        this.charModel.rotation.y += this.turnSpeed * delta;
     }
 }
