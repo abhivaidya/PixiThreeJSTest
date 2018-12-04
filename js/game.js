@@ -138,6 +138,8 @@ var Game = /** @class */ (function () {
             enemy.update();
         });
         this.player.update();
+        this.camera.position.set(this.player.charModel.position.x - 5, this.camera.position.y, this.player.charModel.position.z + 10);
+        this.camera.lookAt(this.player.charModel.position);
     };
     Game.prototype.render = function () {
         this.renderer2D.reset();
@@ -187,7 +189,6 @@ var Game = /** @class */ (function () {
     };
     Game.prototype.onDocumentKeyDown = function (event) {
         this.player.startMoving(event.keyCode);
-        // this.camera.position.setFromMatrixPosition()
     };
     Game.prototype.onDocumentKeyUp = function (event) {
         this.player.stopMoving(event.keyCode);

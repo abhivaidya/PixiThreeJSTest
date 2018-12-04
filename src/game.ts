@@ -209,6 +209,9 @@ class Game
         });
 
         this.player.update();
+
+        this.camera.position.set(this.player.charModel.position.x - 5, this.camera.position.y, this.player.charModel.position.z + 10);
+        this.camera.lookAt(this.player.charModel.position)
     }
 
     private render()
@@ -279,7 +282,6 @@ class Game
     private onDocumentKeyDown(event)
     {
         this.player.startMoving(event.keyCode);
-        // this.camera.position.setFromMatrixPosition()
     }
 
     private onDocumentKeyUp(event)
