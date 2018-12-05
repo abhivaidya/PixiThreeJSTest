@@ -10,11 +10,15 @@ var Game = /** @class */ (function () {
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
         this.intersectPoint = new THREE.Vector3();
+        this.camXDistFromPlayer = 50;
+        this.camYDistFromPlayer = 50;
+        this.camZDistFromPlayer = 50;
         this.divContainer = document.querySelector('#container');
         //Setting THREE Renderer
         this.renderer3D = new THREE.WebGLRenderer({ antialias: true });
         this.renderer3D.setSize(this.divContainer.clientWidth, this.divContainer.clientHeight);
         this.renderer3D.setPixelRatio(window.devicePixelRatio);
+        this.renderer3D.shadowMap.enabled = true;
         this.canvas = this.renderer3D.domElement;
         this.divContainer.appendChild(this.renderer3D.domElement);
         //Setting PIXI Renderer
@@ -31,25 +35,30 @@ var Game = /** @class */ (function () {
         var _this = this;
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0x2c3539);
-        var fov = 35;
+        var fov = 15;
         var aspect = this.divContainer.clientWidth / this.divContainer.clientHeight;
         var near = 0.1;
         var far = 100;
         this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-        this.camera.position.set(-4, 5, 10);
-        var directionallight = new THREE.DirectionalLight(0xffffff, 1.5);
+        this.camera.position.set(-this.camXDistFromPlayer, this.camYDistFromPlayer, this.camZDistFromPlayer);
+        var directionallight = new THREE.DirectionalLight(0xffffff, 2);
         directionallight.position.set(0, 3, 3);
         this.scene.add(directionallight);
+        directionallight.castShadow = true;
+        directionallight.shadow.mapSize = new THREE.Vector2(1024, 1024);
+        directionallight.shadow.camera.far = 10;
+        directionallight.shadow.camera.near = 0;
         var ambientlight = new THREE.AmbientLight(0xffffff, 1);
         this.scene.add(ambientlight);
         this.ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-        var floor = new THREE.Mesh(new THREE.PlaneBufferGeometry(20, 20), new THREE.MeshPhongMaterial({ color: 0x2C3539, depthWrite: false }));
+        var floor = new THREE.Mesh(new THREE.PlaneBufferGeometry(20, 20), new THREE.MeshPhongMaterial({ color: 0x1e1e1e, depthWrite: false }));
         floor.rotation.x = -Math.PI / 2;
         this.scene.add(floor);
-        var grid = new THREE.GridHelper(200, 40, 0x2C3539, 0x000000);
-        grid.material.opacity = 0.2;
-        grid.material.transparent = true;
-        this.scene.add(grid);
+        floor.receiveShadow = true;
+        // let grid = new THREE.GridHelper( 200, 40, 0x2C3539, 0x000000 );
+        // (grid.material as THREE.MeshStandardMaterial).opacity = 0.2;
+        // (grid.material as THREE.MeshStandardMaterial).transparent = true;
+        // this.scene.add( grid );
         this.loadingManager = new THREE.LoadingManager(function () {
             _this.initGame();
         });
@@ -57,21 +66,21 @@ var Game = /** @class */ (function () {
         this.loadEnemyModels();
         this.loadPlayerModel();
         this.controls = new THREE.OrbitControls(this.camera, this.divContainer);
-        this.clock = new THREE.Clock();
     };
     Game.prototype.loadPlayerModel = function () {
         var _this = this;
         var loader = new THREE.GLTFLoader(this.loadingManager);
         var onLoad = function (gltf, position, name) {
-            _this.playerModel = gltf.scene;
+            _this.playerModel = gltf;
+            // this.playerModel.castShadow = true;
             var playerScale = 0.06;
-            _this.playerModel.scale.set(playerScale, playerScale, playerScale);
+            // this.playerModel.scale.set(playerScale, playerScale, playerScale);
         };
         var onProgress = function () { };
         var onError = function (errorMessage) { console.log(errorMessage); };
-        loader.load('assets/characters/advancedCharacter.gltf', function (gltf) { return onLoad(gltf, new THREE.Vector3(), 'player'); }, onProgress, onError);
+        loader.load('assets/characters/Animated Woman.glb', function (gltf) { return onLoad(gltf, new THREE.Vector3(), 'player'); }, onProgress, onError);
         var textureLoader = new THREE.TextureLoader(this.loadingManager);
-        textureLoader.load('assets/characters/skin_adventurer.png', function (texture) {
+        textureLoader.load('assets/characters/LightSkin2.png', function (texture) {
             _this.playerTexture = texture;
         });
     };
@@ -94,6 +103,7 @@ var Game = /** @class */ (function () {
                 Game.enemyModels[1] = gltf;
             else if (name == "ghost")
                 Game.enemyModels[2] = gltf;
+            gltf.castShadow = true;
         };
         var onProgress = function () { };
         var onError = function (errorMessage) { console.log(errorMessage); };
@@ -131,15 +141,12 @@ var Game = /** @class */ (function () {
         this.pixicontainer.addChild(bunny);
     };
     Game.prototype.update = function () {
-        var delta = this.clock.getDelta();
-        if (this.mixer)
-            this.mixer.update(delta);
         this.enemies.forEach(function (enemy) {
             enemy.update();
         });
         this.player.update();
-        this.camera.position.set(this.player.charModel.position.x - 5, this.camera.position.y, this.player.charModel.position.z + 10);
-        this.camera.lookAt(this.player.charModel.position);
+        // this.camera.position.set(this.player.charModel.position.x - this.camXDistFromPlayer, this.camYDistFromPlayer, this.player.charModel.position.z + this.camZDistFromPlayer);
+        // this.camera.lookAt(this.player.charModel.position)
     };
     Game.prototype.render = function () {
         this.renderer2D.reset();
@@ -155,20 +162,24 @@ var Game = /** @class */ (function () {
         this.renderer3D.setSize(this.divContainer.clientWidth, this.divContainer.clientHeight);
     };
     Game.prototype.initGame = function () {
+        //'fence', 'fenceBroken', 'fenceIron', 'fenceIronBorder', 'fenceIronBorderPillar', 'fenceIronGate', 'fenceIronOpening', 'fenceStone', 'fenceStoneStraight',
         var _this = this;
-        for (var i = 0; i < 10; i++) {
-            var fence = this['fenceIron'].clone();
+        for (var i = 0; i < 6; i++) {
+            var fence = this['fenceIronBorderPillar'].clone();
             this.scene.add(fence);
-            fence.position.set(i * 1 - 5, 0, -5);
+            fence.position.set(i * 1 - 3, 0, -3);
+            if (i % 2 != 0) {
+                fence.rotation.y = Math.PI;
+                fence.position.x += 0.9;
+                fence.position.z -= 0.1;
+            }
         }
-        for (var i = 0; i < 10; i++) {
-            var fence = this['fenceIron'].clone();
-            this.scene.add(fence);
-            fence.position.set(i * 1 - 5, 0, 5);
-        }
-        // this.scene.add(this['lanternDouble'].clone());
-        // ((this.playerModel.children[1] as THREE.SkinnedMesh).material as THREE.MeshStandardMaterial).map = this.playerTexture;
-        // this.playerActions['Idle'].play();
+        var lantern = this['lanternDouble'].clone();
+        this.scene.add(lantern);
+        lantern.position.set(-1.05, 0, -3.05);
+        lantern = this['lanternDouble'].clone();
+        this.scene.add(lantern);
+        lantern.position.set(0.95, 0, -3.05);
         var zombie = new Zombie(this.scene);
         this.enemies.push(zombie);
         zombie.setPosition(new THREE.Vector3(0.25, 0, 0.5));
