@@ -10,9 +10,9 @@ var Game = /** @class */ (function () {
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
         this.intersectPoint = new THREE.Vector3();
-        this.camXDistFromPlayer = 50;
-        this.camYDistFromPlayer = 50;
-        this.camZDistFromPlayer = 50;
+        this.camXDistFromPlayer = 5;
+        this.camYDistFromPlayer = 5;
+        this.camZDistFromPlayer = 5;
         this.divContainer = document.querySelector('#container');
         //Setting THREE Renderer
         this.renderer3D = new THREE.WebGLRenderer({ antialias: true });
@@ -34,23 +34,18 @@ var Game = /** @class */ (function () {
     Game.prototype.initialiseThreeProps = function () {
         var _this = this;
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x2c3539);
+        // this.scene.background = new THREE.Color(0x2c3539);
         var fov = 15;
         var aspect = this.divContainer.clientWidth / this.divContainer.clientHeight;
         var near = 0.1;
         var far = 100;
         this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
         this.camera.position.set(-this.camXDistFromPlayer, this.camYDistFromPlayer, this.camZDistFromPlayer);
-        var directionallight = new THREE.DirectionalLight(0xffffff, 2);
-        directionallight.position.set(0, 3, 3);
-        this.scene.add(directionallight);
-        directionallight.castShadow = true;
-        directionallight.shadow.mapSize = new THREE.Vector2(1024, 1024);
-        directionallight.shadow.camera.far = 10;
-        directionallight.shadow.camera.near = 0;
-        var ambientlight = new THREE.AmbientLight(0xffffff, 1);
-        this.scene.add(ambientlight);
-        this.ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+        var hemisphereLight = new THREE.HemisphereLight(0xaaaaaa, 0x000000, .9);
+        var directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+        directionalLight.position.set(10, 5, 10);
+        this.scene.add(directionalLight, hemisphereLight);
+        // this.ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
         var floor = new THREE.Mesh(new THREE.PlaneBufferGeometry(20, 20), new THREE.MeshPhongMaterial({ color: 0x1e1e1e, depthWrite: false }));
         floor.rotation.x = -Math.PI / 2;
         this.scene.add(floor);
@@ -73,14 +68,12 @@ var Game = /** @class */ (function () {
         var onLoad = function (gltf, position, name) {
             _this.playerModel = gltf;
             // this.playerModel.castShadow = true;
-            var playerScale = 0.06;
-            // this.playerModel.scale.set(playerScale, playerScale, playerScale);
         };
         var onProgress = function () { };
         var onError = function (errorMessage) { console.log(errorMessage); };
-        loader.load('assets/characters/Animated Woman.glb', function (gltf) { return onLoad(gltf, new THREE.Vector3(), 'player'); }, onProgress, onError);
+        loader.load('assets/characters/advancedCharacter.gltf', function (gltf) { return onLoad(gltf, new THREE.Vector3(), 'player'); }, onProgress, onError);
         var textureLoader = new THREE.TextureLoader(this.loadingManager);
-        textureLoader.load('assets/characters/LightSkin2.png', function (texture) {
+        textureLoader.load('assets/characters/skin_adventurer.png', function (texture) {
             _this.playerTexture = texture;
         });
     };
@@ -207,9 +200,9 @@ var Game = /** @class */ (function () {
     Game.prototype.onMouseMove = function (event) {
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        this.raycaster.setFromCamera(this.mouse, this.camera);
-        this.raycaster.ray.intersectPlane(this.ground, this.intersectPoint);
-        this.player.lookAt(this.intersectPoint);
+        // this.raycaster.setFromCamera(this.mouse, this.camera);
+        // this.raycaster.ray.intersectPlane(this.ground, this.intersectPoint);
+        // this.player.lookAt(this.intersectPoint);
     };
     Game.enemyModels = [];
     return Game;

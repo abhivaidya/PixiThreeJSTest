@@ -8,8 +8,10 @@ var Player = /** @class */ (function () {
         this.charModel = gltfFile.scene;
         this.charAnims = gltfFile.animations;
         playerTexture.flipY = false;
-        this.charModel.children[0].children[1].material.map = playerTexture;
+        this.charModel.children[0].material.map = playerTexture;
         scene.add(this.charModel);
+        var playerScale = 0.06;
+        this.charModel.scale.set(playerScale, playerScale, playerScale);
         // this.charModel.children[2].rotateX(-Math.PI / 2);
         // this.charModel.children[3].rotateX(-Math.PI / 2);
         this.mixer = new THREE.AnimationMixer(this.charModel);
@@ -23,7 +25,7 @@ var Player = /** @class */ (function () {
             this.actionNames.push(clip.name);
         }
         console.log(this.actions);
-        this.actions[this.actionNames[this.currAnimCount]].play();
+        // this.actions[this.actionNames[this.currAnimCount]].play();
     }
     Player.prototype.lookAt = function (intersectPoint) {
         // this.charModel.lookAt(intersectPoint);
@@ -66,6 +68,8 @@ var Player = /** @class */ (function () {
     Player.prototype.changeAnim = function () {
         this.actions[this.actionNames[this.currAnimCount]].fadeOut(0.5);
         this.currAnimCount++;
+        if (this.currAnimCount > this.charAnims.length - 1)
+            this.currAnimCount = 0;
         this.actions[this.actionNames[this.currAnimCount]]
             .reset()
             .setEffectiveTimeScale(1)

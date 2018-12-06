@@ -25,9 +25,9 @@ class Game
     private mouse:THREE.Vector2 = new THREE.Vector2();
     private intersectPoint = new THREE.Vector3();
     private ground:THREE.Plane;
-    private camXDistFromPlayer = 50;
-    private camYDistFromPlayer = 50;
-    private camZDistFromPlayer = 50;
+    private camXDistFromPlayer = 5;
+    private camYDistFromPlayer = 5;
+    private camZDistFromPlayer = 5;
 
     //Pixi props
     private renderer2D;
@@ -61,7 +61,7 @@ class Game
     private initialiseThreeProps()
     {
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x2c3539);
+        // this.scene.background = new THREE.Color(0x2c3539);
 
         let fov = 15;
         let aspect = this.divContainer.clientWidth / this.divContainer.clientHeight;
@@ -71,18 +71,14 @@ class Game
         this.camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
         this.camera.position.set( -this.camXDistFromPlayer, this.camYDistFromPlayer, this.camZDistFromPlayer );
 
-        let directionallight = new THREE.DirectionalLight( 0xffffff, 2 );
-        directionallight.position.set(0, 3, 3);
-        this.scene.add(directionallight);
-        directionallight.castShadow = true;
-        directionallight.shadow.mapSize = new THREE.Vector2(1024, 1024);
-        directionallight.shadow.camera.far = 10;
-        directionallight.shadow.camera.near = 0;
+        let hemisphereLight = new THREE.HemisphereLight(0xaaaaaa, 0x000000, .9)
 
-        let ambientlight = new THREE.AmbientLight( 0xffffff, 1 );
-        this.scene.add(ambientlight);
+        let directionalLight = new THREE.DirectionalLight( 0xffffff, 2 );
+        directionalLight.position.set( 10, 5, 10 );
 
-        this.ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+        this.scene.add(directionalLight, hemisphereLight);
+
+        // this.ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
         let floor = new THREE.Mesh( new THREE.PlaneBufferGeometry( 20, 20 ), new THREE.MeshPhongMaterial( { color: 0x1e1e1e, depthWrite: false } ) );
         floor.rotation.x = - Math.PI / 2;
@@ -113,19 +109,16 @@ class Game
         
             this.playerModel = gltf;
             // this.playerModel.castShadow = true;
-
-            let playerScale:number = 0.06;
-            // this.playerModel.scale.set(playerScale, playerScale, playerScale);
         };
         
         const onProgress = () => {};
         
         const onError = ( errorMessage ) => { console.log( errorMessage ); };
         
-        loader.load( 'assets/characters/Animated Woman.glb', gltf => onLoad( gltf, new THREE.Vector3(), 'player' ), onProgress, onError );
+        loader.load( 'assets/characters/advancedCharacter.gltf', gltf => onLoad( gltf, new THREE.Vector3(), 'player' ), onProgress, onError );
 
         let textureLoader = new THREE.TextureLoader(this.loadingManager);
-        textureLoader.load('assets/characters/LightSkin2.png', (texture) => {
+        textureLoader.load('assets/characters/skin_adventurer.png', (texture) => {
             this.playerTexture = texture;
         });
     }
@@ -301,9 +294,9 @@ class Game
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
       
-        this.raycaster.setFromCamera(this.mouse, this.camera);
-        this.raycaster.ray.intersectPlane(this.ground, this.intersectPoint);
-        this.player.lookAt(this.intersectPoint);
+        // this.raycaster.setFromCamera(this.mouse, this.camera);
+        // this.raycaster.ray.intersectPlane(this.ground, this.intersectPoint);
+        // this.player.lookAt(this.intersectPoint);
     }
 }
 

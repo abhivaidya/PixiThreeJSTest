@@ -21,8 +21,11 @@ class Player
         this.charAnims = gltfFile.animations
 
         playerTexture.flipY = false;
-        ((this.charModel.children[0].children[1] as THREE.Mesh).material as THREE.MeshStandardMaterial).map = playerTexture;
+        ((this.charModel.children[0] as THREE.Mesh).material as THREE.MeshStandardMaterial).map = playerTexture;
         scene.add(this.charModel);
+
+        let playerScale:number = 0.06;
+        this.charModel.scale.set(playerScale, playerScale, playerScale);
         
         // this.charModel.children[2].rotateX(-Math.PI / 2);
         // this.charModel.children[3].rotateX(-Math.PI / 2);
@@ -43,7 +46,7 @@ class Player
 
         console.log(this.actions);
 
-        this.actions[this.actionNames[this.currAnimCount]].play();
+        // this.actions[this.actionNames[this.currAnimCount]].play();
     }
 
     public lookAt(intersectPoint:THREE.Vector3)
@@ -97,6 +100,9 @@ class Player
         this.actions[this.actionNames[this.currAnimCount]].fadeOut(0.5);
 
         this.currAnimCount++;
+
+        if(this.currAnimCount > this.charAnims.length - 1)
+            this.currAnimCount = 0;
 
         this.actions[this.actionNames[this.currAnimCount]]
 					.reset()
