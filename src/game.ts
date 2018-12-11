@@ -25,9 +25,9 @@ class Game
     private mouse:THREE.Vector2 = new THREE.Vector2();
     private intersectPoint = new THREE.Vector3();
     private ground:THREE.Plane;
-    private camXDistFromPlayer = 5;
-    private camYDistFromPlayer = 5;
-    private camZDistFromPlayer = 5;
+    private camXDistFromPlayer = 15;
+    private camYDistFromPlayer = 15;
+    private camZDistFromPlayer = 15;
 
     //Pixi props
     private renderer2D;
@@ -41,7 +41,7 @@ class Game
         this.renderer3D = new THREE.WebGLRenderer({ antialias: true });
         this.renderer3D.setSize( this.divContainer.clientWidth, this.divContainer.clientHeight );
         this.renderer3D.setPixelRatio( window.devicePixelRatio );
-        this.renderer3D.shadowMap.enabled = true;
+        // this.renderer3D.shadowMap.enabled = true;
 
         this.canvas = this.renderer3D.domElement
         this.divContainer.appendChild( this.renderer3D.domElement );
@@ -73,14 +73,15 @@ class Game
 
         let hemisphereLight = new THREE.HemisphereLight(0xaaaaaa, 0x000000, .9)
 
-        let directionalLight = new THREE.DirectionalLight( 0xffffff, 2 );
-        directionalLight.position.set( 10, 5, 10 );
+        let directionalLight = new THREE.DirectionalLight( 0x20283e, 3 );
+        directionalLight.position.set( 5, 10, 7.5 );
+        directionalLight.castShadow = true;
 
         this.scene.add(directionalLight, hemisphereLight);
 
         // this.ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
-        let floor = new THREE.Mesh( new THREE.PlaneBufferGeometry( 20, 20 ), new THREE.MeshPhongMaterial( { color: 0x1e1e1e, depthWrite: false } ) );
+        let floor = new THREE.Mesh( new THREE.PlaneBufferGeometry( 20, 20 ), new THREE.MeshStandardMaterial( { color: 0x373735, metalness: 0.5, roughness: 0.5, emissive: new THREE.Color(0, 0, 0) } ) );
         floor.rotation.x = - Math.PI / 2;
         this.scene.add( floor );
         floor.receiveShadow = true;
@@ -150,6 +151,10 @@ class Game
                 Game.enemyModels[1] = gltf;
             else if (name == "ghost")
                 Game.enemyModels[2] = gltf;
+            else
+                Game.enemyModels[3] = gltf;
+            
+            console.log(Game.enemyModels[3]);
             
             gltf.castShadow = true;
         };
@@ -165,7 +170,11 @@ class Game
         loader.load( 'assets/characters/character_skeleton.glb', gltf => onLoad( gltf, skeletonPosition, 'skeleton' ), onProgress, onError );
         
         let ghostPosition = new THREE.Vector3( 0, 0, 0 );
-        loader.load( 'assets/characters/character_ghost.glb', gltf => onLoad( gltf, ghostPosition, 'ghost' ), onProgress, onError );          
+        loader.load( 'assets/characters/character_ghost.glb', gltf => onLoad( gltf, ghostPosition, 'ghost' ), onProgress, onError );
+
+        loader.load( 'assets/characters/learner_mesh.glb', gltf => onLoad( gltf, ghostPosition, 'learner' ), onProgress, onError );
+
+        loader.load( 'assets/characters/learner_idle.glb', gltf => onLoad( gltf, ghostPosition, 'learner' ), onProgress, onError ); 
     }
 
     private loadEnvironment()
@@ -179,6 +188,7 @@ class Game
         {            
             loader.load( 'assets/environment/' + enviModelNames[i] + '.glb', ( gltf:THREE.GLTF ) => {
                 this[enviModelNames[i]] = gltf.scene;
+                gltf.scene.castShadow = true;
             }, undefined, function( e ) {
                 console.error( e );
             } );
@@ -212,14 +222,14 @@ class Game
 
     private render()
     {
-        this.renderer2D.reset();
+        // this.renderer2D.reset();
 
         this.renderer3D.state.reset();
         this.renderer3D.render(this.scene, this.camera);
         this.renderer3D.state.reset();
 
-        this.renderer2D.reset();
-        this.renderer2D.render(this.pixicontainer, undefined, false);
+        // this.renderer2D.reset();
+        // this.renderer2D.render(this.pixicontainer, undefined, false);
     }
 
     public onWindowResize()

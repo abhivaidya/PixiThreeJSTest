@@ -10,15 +10,15 @@ var Game = /** @class */ (function () {
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
         this.intersectPoint = new THREE.Vector3();
-        this.camXDistFromPlayer = 5;
-        this.camYDistFromPlayer = 5;
-        this.camZDistFromPlayer = 5;
+        this.camXDistFromPlayer = 15;
+        this.camYDistFromPlayer = 15;
+        this.camZDistFromPlayer = 15;
         this.divContainer = document.querySelector('#container');
         //Setting THREE Renderer
         this.renderer3D = new THREE.WebGLRenderer({ antialias: true });
         this.renderer3D.setSize(this.divContainer.clientWidth, this.divContainer.clientHeight);
         this.renderer3D.setPixelRatio(window.devicePixelRatio);
-        this.renderer3D.shadowMap.enabled = true;
+        // this.renderer3D.shadowMap.enabled = true;
         this.canvas = this.renderer3D.domElement;
         this.divContainer.appendChild(this.renderer3D.domElement);
         //Setting PIXI Renderer
@@ -42,11 +42,12 @@ var Game = /** @class */ (function () {
         this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
         this.camera.position.set(-this.camXDistFromPlayer, this.camYDistFromPlayer, this.camZDistFromPlayer);
         var hemisphereLight = new THREE.HemisphereLight(0xaaaaaa, 0x000000, .9);
-        var directionalLight = new THREE.DirectionalLight(0xffffff, 2);
-        directionalLight.position.set(10, 5, 10);
+        var directionalLight = new THREE.DirectionalLight(0x20283e, 3);
+        directionalLight.position.set(5, 10, 7.5);
+        directionalLight.castShadow = true;
         this.scene.add(directionalLight, hemisphereLight);
         // this.ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-        var floor = new THREE.Mesh(new THREE.PlaneBufferGeometry(20, 20), new THREE.MeshPhongMaterial({ color: 0x1e1e1e, depthWrite: false }));
+        var floor = new THREE.Mesh(new THREE.PlaneBufferGeometry(20, 20), new THREE.MeshStandardMaterial({ color: 0x373735, metalness: 0.5, roughness: 0.5, emissive: new THREE.Color(0, 0, 0) }));
         floor.rotation.x = -Math.PI / 2;
         this.scene.add(floor);
         floor.receiveShadow = true;
@@ -96,6 +97,9 @@ var Game = /** @class */ (function () {
                 Game.enemyModels[1] = gltf;
             else if (name == "ghost")
                 Game.enemyModels[2] = gltf;
+            else
+                Game.enemyModels[3] = gltf;
+            console.log(Game.enemyModels[3]);
             gltf.castShadow = true;
         };
         var onProgress = function () { };
@@ -106,6 +110,8 @@ var Game = /** @class */ (function () {
         loader.load('assets/characters/character_skeleton.glb', function (gltf) { return onLoad(gltf, skeletonPosition, 'skeleton'); }, onProgress, onError);
         var ghostPosition = new THREE.Vector3(0, 0, 0);
         loader.load('assets/characters/character_ghost.glb', function (gltf) { return onLoad(gltf, ghostPosition, 'ghost'); }, onProgress, onError);
+        loader.load('assets/characters/learner_mesh.glb', function (gltf) { return onLoad(gltf, ghostPosition, 'learner'); }, onProgress, onError);
+        loader.load('assets/characters/learner_idle.glb', function (gltf) { return onLoad(gltf, ghostPosition, 'learner'); }, onProgress, onError);
     };
     Game.prototype.loadEnvironment = function () {
         var _this = this;
@@ -115,6 +121,7 @@ var Game = /** @class */ (function () {
         var _loop_1 = function (i) {
             loader.load('assets/environment/' + enviModelNames[i] + '.glb', function (gltf) {
                 _this[enviModelNames[i]] = gltf.scene;
+                gltf.scene.castShadow = true;
             }, undefined, function (e) {
                 console.error(e);
             });
@@ -142,12 +149,12 @@ var Game = /** @class */ (function () {
         // this.camera.lookAt(this.player.charModel.position)
     };
     Game.prototype.render = function () {
-        this.renderer2D.reset();
+        // this.renderer2D.reset();
         this.renderer3D.state.reset();
         this.renderer3D.render(this.scene, this.camera);
         this.renderer3D.state.reset();
-        this.renderer2D.reset();
-        this.renderer2D.render(this.pixicontainer, undefined, false);
+        // this.renderer2D.reset();
+        // this.renderer2D.render(this.pixicontainer, undefined, false);
     };
     Game.prototype.onWindowResize = function () {
         this.camera.aspect = this.divContainer.clientWidth / this.divContainer.clientHeight;

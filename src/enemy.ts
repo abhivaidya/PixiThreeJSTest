@@ -73,6 +73,7 @@ class Ghost extends Enemy
 
         this.charModel = Game.enemyModels[2].scene.children[0].clone()
         scene.add(this.charModel);
+        this.charModel.castShadow = true;
         
         this.charModel.children[1].rotateX(-Math.PI / 2);
         this.charModel.children[2].rotateX(-Math.PI / 2);

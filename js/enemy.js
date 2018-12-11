@@ -62,6 +62,7 @@ var Ghost = /** @class */ (function (_super) {
         _this.angle = 0;
         _this.charModel = Game.enemyModels[2].scene.children[0].clone();
         scene.add(_this.charModel);
+        _this.charModel.castShadow = true;
         _this.charModel.children[1].rotateX(-Math.PI / 2);
         _this.charModel.children[2].rotateX(-Math.PI / 2);
         _this.charModel.position.y += 0.25;
