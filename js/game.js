@@ -69,6 +69,7 @@ var Game = /** @class */ (function () {
         this.loadEnvironment();
         // this.loadEnemyModels();
         this.loadPlayerModel();
+        this.loadMiscItems();
         this.controls = new THREE.OrbitControls(this.camera, this.divContainer);
     };
     Game.prototype.loadPlayerModel = function () {
@@ -125,7 +126,7 @@ var Game = /** @class */ (function () {
                     child.receiveShadow = true;
                     child.castShadow = false;
                 }
-                console.log(child.name);
+                // console.log(child.name);
                 // if(child.name == "lightpostglb")
                 //     child.children[0].castShadow = true
                 if (child.children[0]) {
@@ -145,6 +146,18 @@ var Game = /** @class */ (function () {
         //         console.error( e );
         //     } );
         // }
+    };
+    Game.prototype.loadMiscItems = function () {
+        var loader = new THREE.GLTFLoader(this.loadingManager);
+        var onLoad = function (gltf, name) {
+            gltf.scene.children.forEach(function (child) {
+                Game.alphabetModels[child.name] = child;
+            });
+            // console.log(Game.alphabetModels['a']);
+        };
+        var onProgress = function () { };
+        var onError = function (errorMessage) { console.log(errorMessage); };
+        loader.load('assets/misc/alphabets.glb', function (gltf) { return onLoad(gltf, 'alphabets'); }, onProgress, onError);
     };
     Game.prototype.initialisePixiProps = function () {
         this.pixicontainer = new PIXI.Container();
@@ -250,11 +263,15 @@ var Game = /** @class */ (function () {
     };
     Game.prototype.onDocumentKeyUp = function (event) {
         // this.player.stopMoving(event.keyCode);
-        this.factory.createParalellepiped(0.25, 0.25, 0.25, 30, new THREE.Vector3(0, 5, 0), new THREE.Quaternion(0, 0, 0, 1), new THREE.MeshPhongMaterial({ color: 0xB7B7B7 }));
+        var collisionObj = this.factory.createParalellepiped(0.25, 0.25, 0.05, 30, new THREE.Vector3(0, 5, 0), new THREE.Quaternion(0, 0, 0, 1), new THREE.MeshStandardMaterial({ color: 0xB7B7B7, transparent: true, opacity: 0 }));
+        console.log(collisionObj);
+        // this.scene.add(Game.alphabetModels[String.fromCharCode(event.keyCode).toLowerCase()].clone())
+        collisionObj.add(Game.alphabetModels[String.fromCharCode(event.keyCode).toLowerCase()].clone());
+        console.log(String.fromCharCode(event.keyCode).toLowerCase());
     };
     Game.prototype.onMouseUp = function (event) {
         // this.player.stopMoving(event.keyCode);
-        this.factory.createParalellepiped(0.25, 0.25, 0.25, 30, new THREE.Vector3(0, 5, 0), new THREE.Quaternion(0, 0, 0, 1), new THREE.MeshPhongMaterial({ color: 0xB7B7B7 }));
+        // this.factory.createParalellepiped(0.25, 0.25, 0.25, 30, new THREE.Vector3(0, 5, 0), new THREE.Quaternion(0, 0, 0, 1), new THREE.MeshPhongMaterial({ color: 0xB7B7B7 }));
     };
     Game.prototype.onMouseMove = function (event) {
         this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -273,6 +290,7 @@ var Game = /** @class */ (function () {
         this.physicsWorld.addRigidBody(body);
     };
     Game.enemyModels = [];
+    Game.alphabetModels = {};
     return Game;
 }());
 window.addEventListener("DOMContentLoaded", function () {

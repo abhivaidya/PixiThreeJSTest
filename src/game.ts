@@ -32,6 +32,7 @@ class Game
     private camYDistFromPlayer = 5;
     private camZDistFromPlayer = 5;
     private clock = new THREE.Clock();
+    private static alphabetModels = {};
 
     //Pixi props
     private renderer2D;
@@ -112,6 +113,7 @@ class Game
         this.loadEnvironment();
         // this.loadEnemyModels();
         this.loadPlayerModel();
+        this.loadMiscItems();
 
         this.controls = new THREE.OrbitControls( this.camera, this.divContainer );
     }
@@ -196,7 +198,7 @@ class Game
                     child.castShadow = false;
                 }
 
-                console.log(child.name);
+                // console.log(child.name);
 
                 // if(child.name == "lightpostglb")
                 //     child.children[0].castShadow = true
@@ -220,6 +222,28 @@ class Game
         //         console.error( e );
         //     } );
         // }
+    }
+
+    private loadMiscItems()
+    {
+        let loader = new THREE.GLTFLoader(this.loadingManager);
+
+        const onLoad = ( gltf, name:string ) => {
+            
+            gltf.scene.children.forEach(child => {
+                
+                Game.alphabetModels[child.name] = child;
+
+            });
+
+            // console.log(Game.alphabetModels['a']);
+        };
+        
+        const onProgress = () => {};
+        
+        const onError = ( errorMessage ) => { console.log( errorMessage ); };
+        
+        loader.load( 'assets/misc/alphabets.glb', gltf => onLoad( gltf, 'alphabets' ), onProgress, onError );
     }
 
     private initialisePixiProps()
@@ -354,13 +378,18 @@ class Game
     private onDocumentKeyUp(event)
     {
         // this.player.stopMoving(event.keyCode);
-        this.factory.createParalellepiped(0.25, 0.25, 0.25, 30, new THREE.Vector3(0, 5, 0), new THREE.Quaternion(0, 0, 0, 1), new THREE.MeshPhongMaterial({ color: 0xB7B7B7 }));
+        let collisionObj:THREE.Mesh = this.factory.createParalellepiped(0.25, 0.25, 0.05, 30, new THREE.Vector3(0, 5, 0), new THREE.Quaternion(0, 0, 0, 1), new THREE.MeshStandardMaterial({ color: 0xB7B7B7, transparent:true, opacity:0 }));
+
+        console.log(collisionObj);
+        // this.scene.add(Game.alphabetModels[String.fromCharCode(event.keyCode).toLowerCase()].clone())
+        collisionObj.add(Game.alphabetModels[String.fromCharCode(event.keyCode).toLowerCase()].clone());
+        console.log(String.fromCharCode(event.keyCode).toLowerCase());
     }
 
     private onMouseUp(event)
     {
         // this.player.stopMoving(event.keyCode);
-        this.factory.createParalellepiped(0.25, 0.25, 0.25, 30, new THREE.Vector3(0, 5, 0), new THREE.Quaternion(0, 0, 0, 1), new THREE.MeshPhongMaterial({ color: 0xB7B7B7 }));
+        // this.factory.createParalellepiped(0.25, 0.25, 0.25, 30, new THREE.Vector3(0, 5, 0), new THREE.Quaternion(0, 0, 0, 1), new THREE.MeshPhongMaterial({ color: 0xB7B7B7 }));
     }
 
     private onMouseMove(event) 
