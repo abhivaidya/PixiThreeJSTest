@@ -378,12 +378,14 @@ class Game
     private onDocumentKeyUp(event)
     {
         // this.player.stopMoving(event.keyCode);
-        let collisionObj:THREE.Mesh = this.factory.createParalellepiped(0.25, 0.25, 0.05, 30, new THREE.Vector3(0, 5, 0), new THREE.Quaternion(0, 0, 0, 1), new THREE.MeshStandardMaterial({ color: 0xB7B7B7, transparent:true, opacity:0 }));
+        if((event.keyCode >= 65 && event.keyCode <= 90) || (event.keyCode >= 97 && event.keyCode <= 122))
+        {
+            let alphabetClone = Game.alphabetModels[String.fromCharCode(event.keyCode).toLowerCase()].clone();
+            alphabetClone.material.color = new THREE.Color(0xFF0000)
 
-        console.log(collisionObj);
-        // this.scene.add(Game.alphabetModels[String.fromCharCode(event.keyCode).toLowerCase()].clone())
-        collisionObj.add(Game.alphabetModels[String.fromCharCode(event.keyCode).toLowerCase()].clone());
-        console.log(String.fromCharCode(event.keyCode).toLowerCase());
+            let collisionObj:THREE.Mesh = this.factory.createParalellepiped(0.25, 0.25, 0.05, 30, new THREE.Vector3(1, 5, 0), new THREE.Quaternion(0, 0, 0, 1), new THREE.MeshStandardMaterial({ color: 0xB7B7B7, transparent:true, opacity:0 }));
+            collisionObj.add(alphabetClone);
+        }
     }
 
     private onMouseUp(event)

@@ -263,11 +263,12 @@ var Game = /** @class */ (function () {
     };
     Game.prototype.onDocumentKeyUp = function (event) {
         // this.player.stopMoving(event.keyCode);
-        var collisionObj = this.factory.createParalellepiped(0.25, 0.25, 0.05, 30, new THREE.Vector3(0, 5, 0), new THREE.Quaternion(0, 0, 0, 1), new THREE.MeshStandardMaterial({ color: 0xB7B7B7, transparent: true, opacity: 0 }));
-        console.log(collisionObj);
-        // this.scene.add(Game.alphabetModels[String.fromCharCode(event.keyCode).toLowerCase()].clone())
-        collisionObj.add(Game.alphabetModels[String.fromCharCode(event.keyCode).toLowerCase()].clone());
-        console.log(String.fromCharCode(event.keyCode).toLowerCase());
+        if ((event.keyCode >= 65 && event.keyCode <= 90) || (event.keyCode >= 97 && event.keyCode <= 122)) {
+            var alphabetClone = Game.alphabetModels[String.fromCharCode(event.keyCode).toLowerCase()].clone();
+            alphabetClone.material.color = new THREE.Color(0xFF0000);
+            var collisionObj = this.factory.createParalellepiped(0.25, 0.25, 0.05, 30, new THREE.Vector3(1, 5, 0), new THREE.Quaternion(0, 0, 0, 1), new THREE.MeshStandardMaterial({ color: 0xB7B7B7, transparent: true, opacity: 0 }));
+            collisionObj.add(alphabetClone);
+        }
     };
     Game.prototype.onMouseUp = function (event) {
         // this.player.stopMoving(event.keyCode);
