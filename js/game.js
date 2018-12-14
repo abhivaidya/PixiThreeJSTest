@@ -103,14 +103,19 @@ var Game = /** @class */ (function () {
         };
         var onProgress = function () { };
         var onError = function (errorMessage) { console.log(errorMessage); };
-        var zombiePosition = new THREE.Vector3(0, 0, 1);
-        loader.load('assets/characters/character_zombie.glb', function (gltf) { return onLoad(gltf, zombiePosition, 'zombie'); }, onProgress, onError);
-        var skeletonPosition = new THREE.Vector3(1, 0, -2);
-        loader.load('assets/characters/character_skeleton.glb', function (gltf) { return onLoad(gltf, skeletonPosition, 'skeleton'); }, onProgress, onError);
-        var ghostPosition = new THREE.Vector3(0, 0, 0);
-        loader.load('assets/characters/character_ghost.glb', function (gltf) { return onLoad(gltf, ghostPosition, 'ghost'); }, onProgress, onError);
-        loader.load('assets/characters/learner_mesh.glb', function (gltf) { return onLoad(gltf, ghostPosition, 'learner'); }, onProgress, onError);
-        loader.load('assets/characters/learner_idle.glb', function (gltf) { return onLoad(gltf, ghostPosition, 'learner'); }, onProgress, onError);
+        /*
+        let zombiePosition = new THREE.Vector3( 0, 0, 1 );
+        loader.load( 'assets/characters/character_zombie.glb', gltf => onLoad( gltf, zombiePosition, 'zombie' ), onProgress, onError );
+        
+        let skeletonPosition = new THREE.Vector3( 1, 0, -2 );
+        loader.load( 'assets/characters/character_skeleton.glb', gltf => onLoad( gltf, skeletonPosition, 'skeleton' ), onProgress, onError );
+        
+        let ghostPosition = new THREE.Vector3( 0, 0, 0 );
+        loader.load( 'assets/characters/character_ghost.glb', gltf => onLoad( gltf, ghostPosition, 'ghost' ), onProgress, onError );
+
+        loader.load( 'assets/characters/learner_mesh.glb', gltf => onLoad( gltf, ghostPosition, 'learner' ), onProgress, onError );
+
+        loader.load( 'assets/characters/learner_idle.glb', gltf => onLoad( gltf, ghostPosition, 'learner' ), onProgress, onError );*/
     };
     Game.prototype.loadEnvironment = function () {
         // let enviModelNames = ['altarStone', 'altarWood', 'bench', 'benchBroken', 'borderPillar', 'coffin', 'coffinOld', 'columnLarge', 'cross', 'crypt', 'debris', 'debrisWood', 'detailBowl', 'detailChalice', 'detailPlate', 'fence', 'fenceBroken', 'fenceIron', 'fenceIronBorder', 'fenceIronBorderPillar', 'fenceIronGate', 'fenceIronOpening', 'fenceStone', 'fenceStoneStraight', 'fireBasket', 'grave', 'gravestoneBevel', 'gravestoneBroken', 'gravestoneCross', 'gravestoneCrossLarge', 'gravestoneDebris', 'gravestoneDecorative', 'gravestoneFlat', 'gravestoneFlatOpen', 'gravestoneRoof', 'gravestoneRound', 'gravestoneWide', 'lanternCandle', 'lanternDouble', 'lanternGlass', 'lanternSingle', 'pillarObelisk', 'pillarSquare', 'pumpkin', 'pumpkinCarved', 'pumpkinCarvedTall', 'pumpkinTall', 'shovel', 'shovelDirt', 'trunk', 'trunkLong', 'urn'];
@@ -127,8 +132,6 @@ var Game = /** @class */ (function () {
                     child.castShadow = false;
                 }
                 // console.log(child.name);
-                // if(child.name == "lightpostglb")
-                //     child.children[0].castShadow = true
                 if (child.children[0]) {
                     child.children[0].castShadow = true;
                     child.children[0].receiveShadow = true;
@@ -146,6 +149,22 @@ var Game = /** @class */ (function () {
         //         console.error( e );
         //     } );
         // }
+        var numPoints = 50;
+        var spline = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(-0.25, 0, 0),
+            new THREE.Vector3(-0.5, 0, 0.2),
+            new THREE.Vector3(-0.6, 0, 0.35),
+        ]);
+        var material = new THREE.LineBasicMaterial({
+            color: 0xff00f0,
+        });
+        var geometry = new THREE.Geometry();
+        var splinePoints = spline.getPoints(numPoints);
+        for (var i = 0; i < splinePoints.length; i++) {
+            geometry.vertices.push(splinePoints[i]);
+        }
+        var line = new THREE.Line(geometry, material);
+        this.scene.add(line);
     };
     Game.prototype.loadMiscItems = function () {
         var loader = new THREE.GLTFLoader(this.loadingManager);
@@ -275,8 +294,8 @@ var Game = /** @class */ (function () {
         // this.factory.createParalellepiped(0.25, 0.25, 0.25, 30, new THREE.Vector3(0, 5, 0), new THREE.Quaternion(0, 0, 0, 1), new THREE.MeshPhongMaterial({ color: 0xB7B7B7 }));
     };
     Game.prototype.onMouseMove = function (event) {
-        this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        // this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        // this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         // this.raycaster.setFromCamera(this.mouse, this.camera);
         // this.raycaster.ray.intersectPlane(this.ground, this.intersectPoint);
         // this.player.lookAt(this.intersectPoint);

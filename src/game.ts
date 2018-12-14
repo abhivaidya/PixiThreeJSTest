@@ -163,7 +163,7 @@ class Game
         const onProgress = () => {};
         
         const onError = ( errorMessage ) => { console.log( errorMessage ); };
-        
+        /*
         let zombiePosition = new THREE.Vector3( 0, 0, 1 );
         loader.load( 'assets/characters/character_zombie.glb', gltf => onLoad( gltf, zombiePosition, 'zombie' ), onProgress, onError );
         
@@ -175,7 +175,7 @@ class Game
 
         loader.load( 'assets/characters/learner_mesh.glb', gltf => onLoad( gltf, ghostPosition, 'learner' ), onProgress, onError );
 
-        loader.load( 'assets/characters/learner_idle.glb', gltf => onLoad( gltf, ghostPosition, 'learner' ), onProgress, onError ); 
+        loader.load( 'assets/characters/learner_idle.glb', gltf => onLoad( gltf, ghostPosition, 'learner' ), onProgress, onError );*/
     }
 
     private loadEnvironment()
@@ -199,9 +199,6 @@ class Game
                 }
 
                 // console.log(child.name);
-
-                // if(child.name == "lightpostglb")
-                //     child.children[0].castShadow = true
                 
                 if(child.children[0])
                 {
@@ -222,6 +219,31 @@ class Game
         //         console.error( e );
         //     } );
         // }
+
+        let numPoints = 50;
+
+        let spline = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(-0.25, 0, 0),
+            new THREE.Vector3(-0.5, 0, 0.2),
+            new THREE.Vector3(-0.6, 0, 0.35),
+            // new THREE.Vector3(1.50, .50, 0),
+            // new THREE.Vector3(2.50, .100, 0),
+            // new THREE.Vector3(2.50, 3.00, 0)
+        ]);
+    
+        var material = new THREE.LineBasicMaterial({
+            color: 0xff00f0,
+        });
+    
+        var geometry = new THREE.Geometry();
+        var splinePoints = spline.getPoints(numPoints);
+    
+        for (var i = 0; i < splinePoints.length; i++) {
+            geometry.vertices.push(splinePoints[i]);
+        }
+    
+        var line = new THREE.Line(geometry, material);
+        this.scene.add(line);
     }
 
     private loadMiscItems()
@@ -354,9 +376,9 @@ class Game
         // brickMass, -9, 9, 15, -9, false, material
         // this.factory.createParalellepiped(0.5, 0.5, 0.5, 30, new THREE.Vector3(0, 5, 0), new THREE.Quaternion(0, 0, 0, 1), new THREE.MeshPhongMaterial({ color: 0xB7B7B7 }));
         
-        const pos = new THREE.Vector3(0, -0.5, 0);
-        const quat = new THREE.Quaternion(0, 0, 0, 1);
-        const ground = this.factory.createParalellepiped(20, 1, 20, 0, pos, quat, new THREE.MeshStandardMaterial( { opacity: 0, transparent: true} ));
+        let pos = new THREE.Vector3(0, -0.5, 0);
+        let quat = new THREE.Quaternion(0, 0, 0, 1);
+        let ground = this.factory.createParalellepiped(20, 1, 20, 0, pos, quat, new THREE.MeshStandardMaterial( { opacity: 0, transparent: true} ));
 
         this.renderer3D.setAnimationLoop( () => {
             this.update();
@@ -396,8 +418,8 @@ class Game
 
     private onMouseMove(event) 
     {
-        this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        // this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        // this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
       
         // this.raycaster.setFromCamera(this.mouse, this.camera);
         // this.raycaster.ray.intersectPlane(this.ground, this.intersectPoint);
@@ -406,7 +428,8 @@ class Game
 
     public addPhysicsObject(object: THREE.Object3D, body: Ammo.btRigidBody, mass: number): void 
     {
-		object.userData.physicsBody = body;
+        object.userData.physicsBody = body;
+        
         if (mass > 0) 
         {
 			this.rigidBodies.push(object);
